@@ -51,9 +51,16 @@ class BinaryReader {
 
   String readString() {
     final len = readU32();
-    final buf = readBuffer(len);
+    var buf = readBuffer(len);
     try {
-      return utf8.decode(buf);
+      if (buf.isNotEmpty) {
+        var index = buf.indexOf(0);
+        if (index >= 0) {
+          buf = buf.sublist(0, index);
+        }
+      }
+      var decode = utf8.decode(buf);
+      return decode;
     } catch (e) {
       throw BorshError('Error decoding UTF-8 string: $e');
     }
