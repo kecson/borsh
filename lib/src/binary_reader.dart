@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide ReadBuffer;
 
 import 'borsh_codec.dart';
+import 'serialization.dart';
 
 class BinaryReader {
   final ReadBuffer buffer;
