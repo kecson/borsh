@@ -15,7 +15,7 @@ class BinaryWriter {
 
   void writeU32(int value) => _buffer.putUint32(value, endian: Endian.little);
 
-  void writeU64(BigInt value) => _writeBigInt(value);
+  void writeU64(int value) => _writeBigInt(BigInt.from(value));
 
   void writeU128(BigInt value) => _writeBigInt(value);
 

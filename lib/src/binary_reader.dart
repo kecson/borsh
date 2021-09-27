@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
 
 import 'borsh_codec.dart';
@@ -12,8 +13,7 @@ class BinaryReader {
 
   BinaryReader.byteData(ByteData byteData) : this(ReadBuffer(byteData));
 
-  BinaryReader.byteBuffer(ByteBuffer buffer)
-      : this.byteData(buffer.asByteData());
+  BinaryReader.byteBuffer(ByteBuffer buffer) : this.byteData(buffer.asByteData());
 
   int readU8() => buffer.getUint8();
 
@@ -23,28 +23,32 @@ class BinaryReader {
 
   int readU32() => buffer.getUint32();
 
-  BigInt readU64() {
-    var buf = readBuffer(8);
-    var hex = buf.fold('', (pre, e) => '$pre${e.toRadixString(16)}');
-    return BigInt.parse(hex, radix: 16);
-  }
+  int readU64() => buffer.getUint64();
 
   BigInt readU128() {
     var buf = readBuffer(16);
-    var hex = buf.fold('', (pre, e) => '$pre${e.toRadixString(16)}');
-    return BigInt.parse(hex, radix: 16);
+    var bigInt = _getBigInt(buf);
+    return bigInt;
   }
 
   BigInt readU256() {
     var buf = readBuffer(32);
-    var hex = buf.fold('', (pre, e) => '$pre${e.toRadixString(16)}');
-    return BigInt.parse(hex, radix: 16);
+    var bigInt = _getBigInt(buf);
+    return bigInt;
   }
 
   BigInt readU512() {
     var buf = readBuffer(64);
-    var hex = buf.fold('', (pre, e) => '$pre${e.toRadixString(16)}');
-    return BigInt.parse(hex, radix: 16);
+    var bigInt = _getBigInt(buf);
+    return bigInt;
+  }
+
+  BigInt _getBigInt(Uint8List buf) {
+    //Endian.little
+    buf = Uint8List.fromList(buf.reversed.toList());
+    var hexStr = hex.encode(buf);
+    var bigInt = BigInt.parse(hexStr, radix: 16);
+    return bigInt;
   }
 
   Uint8List readBuffer(int length) => buffer.getUint8List(length);
