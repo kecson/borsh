@@ -53,8 +53,7 @@ class BorshCodec {
           });
         }
       } else {
-        writer.writeArray(
-            list, (elem) => _serializeField(field.struct, elem, writer));
+        writer.writeArray(list, (elem) => _serializeField(field.struct, elem, writer));
       }
       return;
     }
@@ -102,8 +101,7 @@ class BorshCodec {
     }
   }
 
-  void _serializeStruct(
-      StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
+  void _serializeStruct(StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
     for (var field in struct.schema) {
       var fieldValue = obj[field.name];
       _serializeField(field, fieldValue, writer);
@@ -112,20 +110,34 @@ class BorshCodec {
 
   dynamic _deserializeField(Field field, BinaryReader reader) {
     //deserialize Struct
-    if (field is StructInfo) return _deserializeStruct(field, reader);
-    if (field is ListInfo) {
+    if (field is StructInfo) {
       if (field.isOption) {
-        var option = reader.readU8() == 1;
-        if (option) {
-          var array =
-              reader.readArray(() => _deserializeStruct(field.struct, reader));
-          return array;
+        var option = (reader.readU8() == 1);
+        if (!option) {
+          return {};
         }
       }
-      var array =
-          reader.readArray(() => _deserializeStruct(field.struct, reader));
+      return _deserializeStruct(field, reader);
+    }
+
+    if (field is ListInfo) {
+      if (field.isOption) {
+        var option = (reader.readU8() == 1);
+        if (!option) {
+          return [];
+        }
+      }
+      var array = reader.readArray(() => _deserializeField(field.struct, reader));
       return array;
     }
+
+    if (field.isOption) {
+      var option = (reader.readU8() == 1);
+      if (!option) {
+        return null;
+      }
+    }
+
     if (field is! FieldInfo) {
       throw BorshError('Unexpected field: $field');
     }
