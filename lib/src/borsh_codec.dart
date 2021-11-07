@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
-
 import '../borsh.dart';
 import 'binary_reader.dart';
+import 'binary_writer.dart';
 
 class BorshError extends Error {
   final String message;
@@ -38,7 +37,7 @@ class BorshCodec {
   void _serializeField(Field field, dynamic fieldValue, BinaryWriter writer) {
     //serialize Struct
     if (field is StructInfo) {
-      _serializeStruct(field, fieldValue, writer);
+      _serializeStruct(field, fieldValue as Map<String, dynamic>, writer);
       return;
     }
     if (field is ListInfo) {
@@ -53,7 +52,8 @@ class BorshCodec {
           });
         }
       } else {
-        writer.writeArray(list, (elem) => _serializeField(field.struct, elem, writer));
+        writer.writeArray(
+            list, (elem) => _serializeField(field.struct, elem, writer));
       }
       return;
     }
@@ -65,43 +65,43 @@ class BorshCodec {
 
     switch (field.type) {
       case FieldType.u8:
-        writer.writeU8(fieldValue);
+        writer.writeU8(fieldValue as int);
         break;
       case FieldType.u16:
-        writer.writeU16(fieldValue);
+        writer.writeU16(fieldValue as int);
         break;
       case FieldType.u32:
-        writer.writeU32(fieldValue);
+        writer.writeU32(fieldValue as int);
 
         break;
       case FieldType.u64:
-        writer.writeU64(fieldValue);
+        writer.writeU64(fieldValue as int);
 
         break;
       case FieldType.u128:
-        writer.writeU128(fieldValue);
-
+        writer.writeU128(fieldValue as BigInt);
         break;
       case FieldType.u256:
-        writer.writeU256(fieldValue);
+        writer.writeU256(fieldValue as BigInt);
 
         break;
       case FieldType.u512:
-        writer.writeU512(fieldValue);
+        writer.writeU512(fieldValue as BigInt);
 
         break;
       case FieldType.Float64:
-        writer.writeFloat64(fieldValue);
+        writer.writeFloat64(fieldValue as double);
         break;
       case FieldType.String:
-        writer.writeString(fieldValue);
+        writer.writeString(fieldValue as String);
         break;
       case FieldType.List:
         break;
     }
   }
 
-  void _serializeStruct(StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
+  void _serializeStruct(
+      StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
     for (var field in struct.schema) {
       var fieldValue = obj[field.name];
       _serializeField(field, fieldValue, writer);
@@ -127,7 +127,8 @@ class BorshCodec {
           return [];
         }
       }
-      var array = reader.readArray(() => _deserializeField(field.struct, reader));
+      var array =
+          reader.readArray(() => _deserializeField(field.struct, reader));
       return array;
     }
 

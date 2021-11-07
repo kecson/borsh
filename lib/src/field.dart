@@ -8,12 +8,12 @@ enum SchemaKind {
 }
 
 enum FieldType {
-  ///num
+  //num
   u8,
   u16,
   u32,
 
-  ///BigInt
+  //BigInt
   u64,
   u128,
   u256,
@@ -39,8 +39,8 @@ abstract class Field {
   });
 }
 
-typedef OnFieldRead = dynamic Function(BinaryReader reader);
-typedef OnFieldWrite = bool Function(BinaryWriter writer, dynamic value);
+typedef OnFieldRead<T> = T Function(BinaryReader reader);
+typedef OnFieldWrite<T> = bool Function(BinaryWriter writer, T value);
 
 class FieldInfo extends Field {
   final FieldType type;
@@ -79,7 +79,7 @@ class StructInfo extends Field {
 class ListInfo extends Field {
   final StructInfo struct;
 
-  ListInfo({
+  const ListInfo({
     required String name,
     required this.struct,
     bool isOption = false,

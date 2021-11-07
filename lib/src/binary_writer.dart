@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import 'package:flutter/foundation.dart';
+
+import 'serialization.dart';
 
 class BinaryWriter {
   final WriteBuffer _buffer = WriteBuffer();
@@ -37,7 +38,7 @@ class BinaryWriter {
     writeBuffer(Uint8List.fromList(encode));
   }
 
-  void writeArray(List list, ValueSetter fn) {
+  void writeArray(List list, Function fn) {
     writeU32(list.length);
     for (var elem in list) {
       fn(elem);

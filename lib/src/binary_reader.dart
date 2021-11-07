@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import 'package:flutter/foundation.dart' hide ReadBuffer;
 
 import 'borsh_codec.dart';
+import 'borsh_field.dart';
 import 'serialization.dart';
 
 class BinaryReader {
@@ -14,7 +14,8 @@ class BinaryReader {
 
   BinaryReader.byteData(ByteData byteData) : this(ReadBuffer(byteData));
 
-  BinaryReader.byteBuffer(ByteBuffer buffer) : this.byteData(buffer.asByteData());
+  BinaryReader.byteBuffer(ByteBuffer buffer)
+      : this.byteData(buffer.asByteData());
 
   int readU8() => buffer.getUint8();
 

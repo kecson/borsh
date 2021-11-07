@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:borsh/borsh.dart';
 import 'package:convert/convert.dart';
-import 'package:flutter/foundation.dart';
 
 import 'raw_data.dart';
 
@@ -12,7 +11,7 @@ bool boolValueGetter(BinaryReader reader) {
   return value;
 }
 
-bool onBoolWrite(BinaryWriter writer, dynamic value) {
+bool onBoolWrite(BinaryWriter writer, bool value) {
   writer.writeU8(value ? 1 : 0);
   return true;
 }
@@ -23,12 +22,12 @@ String onPubKeyRead(BinaryReader reader) {
 }
 
 bool onPubKeyWrite(BinaryWriter writer, dynamic value) {
-  var buf = hex.decode(value);
+  var buf = hex.decode(value as String);
   writer.writeBuffer(Uint8List.fromList(buf));
   return true;
 }
 
-final CREATOR_SCHEMA = StructInfo(
+const CREATOR_SCHEMA = StructInfo(
   name: 'Creator',
   schema: [
     FieldInfo(
@@ -45,10 +44,10 @@ final CREATOR_SCHEMA = StructInfo(
 final DATA_SCHEMA = StructInfo(
   name: 'Data',
   schema: [
-    FieldInfo(name: 'name', type: FieldType.String),
-    FieldInfo(name: 'symbol', type: FieldType.String),
-    FieldInfo(name: 'uri', type: FieldType.String),
-    FieldInfo(name: 'sellerFeeBasisPoints', type: FieldType.u16),
+    const FieldInfo(name: 'name', type: FieldType.String),
+    const FieldInfo(name: 'symbol', type: FieldType.String),
+    const FieldInfo(name: 'uri', type: FieldType.String),
+    const FieldInfo(name: 'sellerFeeBasisPoints', type: FieldType.u16),
     ListInfo(
       name: 'creators',
       isOption: true,
@@ -63,22 +62,22 @@ final DATA_SCHEMA = StructInfo(
 final METADATA_SCHEMA = StructInfo(
   name: 'Metadata',
   schema: [
-    FieldInfo(name: 'key', type: FieldType.u8),
-    FieldInfo(
+    const FieldInfo(name: 'key', type: FieldType.u8),
+    const FieldInfo(
       name: 'updateAuthority',
       type: FieldType.List,
       onFieldRead: onPubKeyRead,
       onFieldWrite: onPubKeyWrite,
     ),
-    FieldInfo(
+    const FieldInfo(
       name: 'mint',
       type: FieldType.List,
       onFieldRead: onPubKeyRead,
       onFieldWrite: onPubKeyWrite,
     ),
     StructInfo(name: 'data', schema: DATA_SCHEMA.schema),
-    FieldInfo(name: 'primarySaleHappened', type: FieldType.u8),
-    FieldInfo(name: 'isMutable', type: FieldType.u8),
+    const FieldInfo(name: 'primarySaleHappened', type: FieldType.u8),
+    const FieldInfo(name: 'isMutable', type: FieldType.u8),
   ],
 );
 
@@ -93,9 +92,9 @@ void main() async {
 
   var message = borshCodec.encode(metadataMap);
   var decodeData = borshCodec.decode(message);
-
   var uint8list = message!.buffer.asUint8List();
-  var compare =
-  listEquals(uint8list, encodeData.sublist(0, uint8list.lengthInBytes));
-  assert(compare);
+
+  for (var i = 0; i < uint8list.length; i++) {
+    assert(uint8list[i] == encodeData[i]);
+  }
 }
