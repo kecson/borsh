@@ -92,10 +92,9 @@ void main() async {
   print('${json.encode(metadataMap)}');
 
   var message = borshCodec.encode(metadataMap);
-  var decodeData = borshCodec.decode(message);
+  var decodeData = borshCodec.decodeBuffer(message?.buffer);
 
   var uint8list = message!.buffer.asUint8List();
-  var compare =
-  listEquals(uint8list, encodeData.sublist(0, uint8list.lengthInBytes));
+  var compare = listEquals(uint8list, encodeData.sublist(0, uint8list.lengthInBytes));
   assert(compare);
 }

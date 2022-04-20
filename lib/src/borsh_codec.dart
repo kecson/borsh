@@ -21,16 +21,26 @@ class BorshCodec {
   /// Creates a [MessageCodec] using the Flutter standard binary encoding.
   const BorshCodec(this.structInfo);
 
-  ByteData? encode(Map<String, dynamic>? json) {
+  Uint8List? encode(Map<String, dynamic>? json) {
     if (json == null) return null;
     BinaryWriter writer = BinaryWriter();
     _serializeStruct(structInfo, json, writer);
     return writer.toArray();
   }
 
-  Map<String, dynamic> decode(ByteData? message) {
-    if (message == null) return {};
-    final reader = BinaryReader.byteData(message);
+  Map<String, dynamic> decode(ByteData? data) {
+    if (data == null) return {};
+    final reader = BinaryReader.byteData(data);
+    return _decodeFromReader(reader);
+  }
+
+  Map<String, dynamic> decodeBuffer(ByteBuffer? byteBuffer) {
+    if (byteBuffer == null) return {};
+    final reader = BinaryReader.byteBuffer(byteBuffer);
+    return _decodeFromReader(reader);
+  }
+
+  Map<String, dynamic> _decodeFromReader(BinaryReader reader) {
     var result = _deserializeStruct(structInfo, reader);
     return result;
   }
@@ -53,7 +63,8 @@ class BorshCodec {
           });
         }
       } else {
-        writer.writeArray(list, (elem) => _serializeField(field.struct, elem, writer));
+        writer.writeArray(
+            list, (elem) => _serializeField(field.struct, elem, writer));
       }
       return;
     }
@@ -101,7 +112,8 @@ class BorshCodec {
     }
   }
 
-  void _serializeStruct(StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
+  void _serializeStruct(
+      StructInfo struct, Map<String, dynamic> obj, BinaryWriter writer) {
     for (var field in struct.schema) {
       var fieldValue = obj[field.name];
       _serializeField(field, fieldValue, writer);
@@ -127,7 +139,8 @@ class BorshCodec {
           return [];
         }
       }
-      var array = reader.readArray(() => _deserializeField(field.struct, reader));
+      var array =
+          reader.readArray(() => _deserializeField(field.struct, reader));
       return array;
     }
 

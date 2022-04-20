@@ -35,6 +35,6 @@ void main() {
 
   var borshCodec = BorshCodec(schema);
   var encode = borshCodec.encode(map);
-  var decode = borshCodec.decode(encode);
+  var decode = borshCodec.decodeBuffer(encode!.buffer);
   print(decode);
 }

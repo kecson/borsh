@@ -44,5 +44,9 @@ class BinaryWriter {
     }
   }
 
-  ByteData toArray() => _buffer.done();
+  Uint8List toArray() {
+    var byteData = _buffer.done();
+    var list = byteData.buffer.asUint8List(0, byteData.lengthInBytes);
+    return list;
+  }
 }
